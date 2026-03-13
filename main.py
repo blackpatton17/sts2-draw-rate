@@ -136,6 +136,7 @@ class OverlayWindow(QMainWindow):
         for i, name in enumerate(names):
             data = self.card_db.get(name)
             if data:
+                # 数据提取
                 wr = data.get('胜率', 0)
                 pr = data.get('选取率', 0)
                 try:
@@ -143,22 +144,36 @@ class OverlayWindow(QMainWindow):
                     pr_v = float(str(pr).replace('%', ''))
                 except: wr_v, pr_v = 0.0, 0.0
 
-                # 亲民版加权评分
-                final_score = (wr_v * 0.7) + (pr_v * 0.3)
+                # --- 核心改进：极其宽松的评价公式 ---
+                # 选取率权重提升至 0.4，因为“群众的选择”很重要
+                final_score = (wr_v * 0.6) + (pr_v * 0.4)
                 
-                # 评级逻辑
-                if final_score > 51: r, c = "S (核心)", "#FFD700"
-                elif final_score > 45: r, c = "A (优质)", "#E0E0E0"
-                elif final_score > 38: r, c = "B (过渡)", "#CD7F32"
-                else: r, c = "C (观望)", "#888888"
+                # --- 阶梯大幅下调 ---
+                # 在 StS2 目前的数据环境下，综合分过 48 绝对是顶级强卡了
+                if final_score > 48: 
+                    r, c = "S (必拿)", "#FFD700"
+                elif final_score > 42: 
+                    r, c = "A (优质)", "#E0E0E0"
+                elif final_score > 35: 
+                    r, c = "B (可用)", "#CD7F32"
+                elif final_score > 28:
+                    r, c = "C (平庸)", "#A0A0A0"
+                else: 
+                    r, c = "D (陷阱)", "#707070"
 
-                self.labels[i].setText(f"【{name}】\n胜率: {wr_v}%\n⭐ 综合: {final_score:.1f}\n评级: {r}")
+                self.labels[i].setText(
+                    f"【{name}】\n"
+                    f"胜率: {wr_v}%\n"
+                    f"⭐ 综合: {final_score:.1f}\n"
+                    f"评级: {r}"
+                )
                 self.labels[i].setStyleSheet(f"""
                     color: {c}; font-family: 'Microsoft YaHei'; font-size: 15px; font-weight: bold;
-                    background-color: rgba(0, 0, 0, 220); border: 2px solid {c}; border-radius: 8px; padding: 8px;
+                    background-color: rgba(0, 0, 0, 230); border: 2px solid {c}; border-radius: 10px; padding: 10px;
                 """)
             else:
-                self.labels[i].setText(f"{name}\n暂无数据")
+                self.labels[i].setText(f"{name}\n暂无匹配数据")
+                self.labels[i].setStyleSheet("color: #666; font-size: 14px; background-color: rgba(0, 0, 0, 150);")
 
     def close_app(self):
         QApplication.quit()
