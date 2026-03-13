@@ -1,11 +1,16 @@
-# main.py 使用说明（简版）
+# 使用说明（main.py）
 
-`main.py` 是桌面悬浮层工具：读取 `result_cleaned.csv`，按快捷键触发 OCR 分析并在屏幕上显示结果。
+![demo](docs/demo.png)
 
-## 1. 启动前准备
+这是一个桌面悬浮层工具：读取 `result_cleaned.csv`，按快捷键触发识别，并在屏幕上显示结果。
 
-1. 使用 Python 3.12（推荐）  
-2. 安装依赖：
+## 0. 傻瓜式教程（给电脑小白）
+
+按下面做，不用懂代码。
+
+1. 打开项目文件夹：`sts2 db`
+2. 在文件夹空白处右键，选择“在终端中打开”
+3. 复制并执行下面 4 行（一次执行一行）：
 
 ```bash
 python -m venv .venv
@@ -14,11 +19,52 @@ python -m pip install -U pip
 python -m pip install -r requirements.txt
 ```
 
-3. 确保项目根目录存在 `result_cleaned.csv`（`main.py` 启动时会读取它）
+4. 启动程序：
+
+```bash
+python main.py
+```
+
+5. 进入游戏画面后按：
+- `Ctrl+Q` 开始分析
+- `Ctrl+H` 隐藏/显示窗口
+- `Ctrl+Shift+X` 退出程序
+
+如果第 3 步报错“`python` 不是内部或外部命令”，先安装 Python 3.12，并勾选 “Add Python to PATH”。
+
+## 0.1 Docker 启动（傻瓜版）
+
+适合只跑 OCR 批处理（`ocr.py`）。  
+`main.py` 是 Windows 桌面 GUI 程序，不建议普通 Docker 直接运行。
+
+1. 安装 Docker Desktop 并启动
+2. 在项目目录打开终端
+3. 构建镜像：
+
+```bash
+docker build -t sts2-ocr .
+```
+
+4. 运行 OCR（把本地截图目录挂载到容器）：
+
+```bash
+docker run --rm -v "%cd%/screenshots:/app/screenshots" sts2-ocr
+```
+
+运行完成后，输出文件会在项目目录里（如 `result_cleaned.csv`）。
+
+## 1. 常规安装（推荐 Python 3.12）
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install -U pip
+python -m pip install -r requirements.txt
+```
+
+确保项目目录里有 `result_cleaned.csv`，否则 `main.py` 没有数据可读。
 
 ## 2. 启动
-
-在项目目录执行：
 
 ```bash
 python main.py
@@ -30,19 +76,35 @@ python main.py
 - `Ctrl+H`：显示/隐藏悬浮窗
 - `Ctrl+Shift+X`：退出程序
 
-## 4. 常见问题
+## 4. Demo
+
+最小演示流程：
+
+1. 启动：`python main.py`
+2. 打开游戏或目标画面，保证三张卡区域可见
+3. 按 `Ctrl+Q`
+4. 悬浮窗显示卡牌名称、胜率和评级
+
+示例终端输出（参考）：
+
+```text
+>>> 插件全功能已就绪
+    [Ctrl+Q] 分析  [Ctrl+H] 隐藏/显示  [Ctrl+Shift+X] 退出
+```
+
+## 5. 常见问题
 
 ### 启动后没数据
 
 - 检查 `result_cleaned.csv` 是否存在
-- 检查 CSV 列名是否与代码一致（当前代码会读取“卡牌名称”等列）
+- 检查 CSV 列名是否与代码一致（当前代码读取“卡牌名称”等列）
 
 ### 热键无响应
 
-- 用“管理员权限”打开终端再运行 `main.py`
-- 避免和其他软件的全局热键冲突
+- 用管理员权限打开终端再运行 `main.py`
+- 避免和其他软件全局热键冲突
 
 ### OCR 报错（Paddle 相关）
 
-- 先确认当前环境版本与 `requirements.txt` 一致
-- 如果有旧版本残留，重装依赖后再试
+- 确认依赖版本和 `requirements.txt` 一致
+- 若有旧版本残留，重装依赖后再试
