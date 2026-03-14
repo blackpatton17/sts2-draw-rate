@@ -10,27 +10,41 @@
 
 ## 📥 安装说明
 
+### ⚠️ 重要前置：切换至 Beta 分支
+当前《杀戮尖塔 2》的 Mod 加载依赖于测试版分支（Beta Branch）。在安装任何 Mod 之前，请务必先将游戏切换到 Beta 版本：
+1. 在 Steam 库中找到 **Slay the Spire 2**。
+2. 右键点击游戏 -> 选择 **属性 (Properties)**。
+3. 在左侧菜单中选择 **游戏版本及测试版**。
+4. 选择 **`Public-beta`**（或者任何标有 mod 支持/beta 的分支）。
+5. 等待 Steam 下载并更新游戏。
+
 ### 前置需求
-为了使 Mod 正常工作，你需要确保游戏支持加载第三方 Mod：
-1. **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** (或游戏官方支持的 Mod 加载器)
-2. 确保你的游戏版本支持 `.dll` 模组注入。
+《杀戮尖塔 2》目前处于抢先体验阶段，官方暂未原生开放创意工坊。为了让代码级模组（如本 Mod）能够被游戏加载，你**必须**先安装社区核心加载库：
+
+**BaseLib (模组基础库)**
+*   **这是什么？**：BaseLib 是当前 STS2 模组社区使用的核心 Mod 加载器和工具库。本 Mod 依赖它来完成初始化和对游戏本体的底层代码注入（Harmony Patch）。
+*   **如何获取？**：你通常可以在 NexusMods、Discord 或官方 Mod 社区找到它。
+*   **如何安装 BaseLib？**：下载后，将 BaseLib 解压到游戏的 `mods` 文件夹中。安装好后，你的目录应该长这样：`Slay the Spire 2/mods/BaseLib/BaseLib.dll` (及相关配置和 .pck 文件)。
 
 ### 安装步骤
 
 1. **下载 Release 压缩包**
-   前往 [Releases 页面](../../releases) 下载最新版本的压缩包。
+   前往 [Releases 页面](../../releases) 下载最新版本的压缩包（例如 `CardProbMod_v1.x.x.zip`）。
 
 2. **定位游戏 Mod 文件夹**
    打开你的 Steam 库，右键点击 `Slay the Spire 2` -> `管理` -> `浏览本地文件`。
    在游戏根目录中找到或创建一个名为 `mods` 的文件夹。
 
 3. **解压文件**
-   将下载压缩包内名为 `CardProbMod` 的整个文件夹解压到 `mods` 目录下。
-   正确的路径结构应该如下所示：
+   将下载的压缩包直接解压到 `mods` 目录下。
+   正确安装后，你的目录结构必须如下所示（请确保层级正确，不要出现套娃文件夹）：
    ```text
    Slay the Spire 2/
    └── mods/
-       └── CardProbMod/
+       ├── BaseLib/                   # [必须存在] 核心前置库
+       │   ├── BaseLib.dll
+       │   └── ...
+       └── CardProbMod/               # [本模组]
            ├── CardProbMod.dll        # 核心逻辑文件
            ├── CardProbMod.json       # Mod 配置文件
            └── result_cleaned.csv     # 胜率数据库文件
@@ -51,8 +65,8 @@
   A: 这说明 `result_cleaned.csv` 中没有记录这张牌的内部 ID。你可以记下灰色提示框中给出的 `InternalName`（如 `ForgottenRitual`），将其添加到 CSV 的第一列并补充相应数据即可。
 - **Q: 打击和防御怎么不显示胜率？**
   A: 为了保持界面的整洁，基础的过渡牌（以 `Strike` 和 `Defend` 开头）已经被刻意过滤，不会显示胜率框。
-- **Q: 会导致游戏卡顿吗？**
-  A: 完全不会。Mod 使用 Godot 引擎原生的对象池生命周期检测（Timer 异步轻量检测），无图形遮罩，极度丝滑。
+- **Q: 你的胜率数据是哪里来的**
+  A: 数据源自于小黑盒社区（2026-03-12）
 
 ## 👨‍💻 参与开发
 如果你想自行编译此项目：
