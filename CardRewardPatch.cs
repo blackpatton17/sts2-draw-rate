@@ -21,31 +21,43 @@ public static class FinalPatch
     {
         try
         {
-            var flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic;
-            var modelObj = __instance.GetType().GetField("_model", flags)?.GetValue(__instance)
-                        ?? __instance.GetType().GetProperty("Model", flags)?.GetValue(__instance);
+            if (__instance.HasNode("CardStatsUI")) return;
 
-            if (modelObj == null) return;
+            var container = new Node2D();
+            container.Name = "CardStatsUI";
+            
+            float boxWidth = 190;
+            float boxHeight = 85;
 
-            // 获取卡牌的内部名称，例如 "BurningPact"
-            string internalName = modelObj.GetType().Name; 
+            // 完美居中，在卡牌下方
+            container.Position = new Vector2(-boxWidth / 2, 160); 
+            container.ZIndex = 500;
+            container.Visible = false; // 初始隐藏，由定时器接管
 
-            // 过滤基础过渡牌（各种职业的打击和防御）
-            if (internalName.StartsWith("Strike") || internalName.StartsWith("Defend"))
-            {
-                return;
-            }
+            var border = new ColorRect();
+            border.SetSize(new Vector2(boxWidth + 4, boxHeight + 4));
+            border.SetPosition(new Vector2(-2, -2)); 
+            container.AddChild(border);
 
-            // 直接使用 InternalName 去 CSV 加载的数据里查
-            if (CardDatabase.Data.TryGetValue(internalName, out var stats))
-            {
-                DrawFinalUI(__instance, stats);
-            }
-            else
-            {
-                // 如果没查到，显示内部名，方便你检查 CSV 里是否漏了这张牌
-                DrawDebugBox(__instance, internalName);
-            }
+            var bg = new ColorRect();
+            bg.Color = new Color(0.05f, 0.05f, 0.05f, 0.95f); 
+            bg.SetSize(new Vector2(boxWidth, boxHeight));
+            container.AddChild(bg);
+
+            var label = new Label();
+            label.SetSize(new Vector2(boxWidth, boxHeight));
+            label.HorizontalAlignment = HorizontalAlignment.Center;
+            label.VerticalAlignment = VerticalAlignment.Center;
+            label.AddThemeFontSizeOverride("font_size", 16);
+            label.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 1));
+            label.AddThemeConstantOverride("shadow_offset_x", 1);
+            label.AddThemeConstantOverride("shadow_offset_y", 1);
+            
+            container.AddChild(label);
+            __instance.AddChild(container);
+
+            // 使用超轻量定时器来应对 Godot 的对象池复用
+            SetupTracker(__instance, container, border, label);
         }
         catch (System.Exception ex)
         {
@@ -53,88 +65,78 @@ public static class FinalPatch
         }
     }
 
-    private static void DrawFinalUI(NCard cardNode, CardData data)
+    private static void SetupTracker(NCard cardNode, Node2D container, ColorRect border, Label label)
     {
-        if (cardNode.HasNode("CardStatsUI")) return;
+        var timer = new Godot.Timer();
+        timer.WaitTime = 0.2f; // 每秒只执行 5 次，性能开销为 0
+        timer.Autostart = true;
+        container.AddChild(timer);
 
-        var container = new Node2D();
-        container.Name = "CardStatsUI";
-        
-        float boxWidth = 190;
-        float boxHeight = 85;
-
-        // 原点在卡牌正中心。
-        // X = -95 保证宽度为 190 的框完美左右居中。
-        // Y = 160 大概是卡牌下边缘偏下的位置。
-        container.Position = new Vector2(-boxWidth / 2, 160); 
-        container.ZIndex = 500;
-
-        // 1. 外层边框
-        var border = new ColorRect();
-        border.Color = Color.FromHtml(data.ColorHex); 
-        border.SetSize(new Vector2(boxWidth + 4, boxHeight + 4));
-        border.SetPosition(new Vector2(-2, -2)); 
-        container.AddChild(border);
-
-        // 2. 内层纯黑背景
-        var bg = new ColorRect();
-        bg.Color = new Color(0.05f, 0.05f, 0.05f, 0.95f); 
-        bg.SetSize(new Vector2(boxWidth, boxHeight));
-        container.AddChild(bg);
-
-        // 3. 文字标签
-        var label = new Label();
-        label.Text = $"【{data.Rank}】\n胜率: {data.WinRate}%\n综合: {data.Score:F1}";
-        label.Modulate = Color.FromHtml(data.ColorHex);
-        label.SetSize(new Vector2(boxWidth, boxHeight));
-        label.HorizontalAlignment = HorizontalAlignment.Center;
-        label.VerticalAlignment = VerticalAlignment.Center;
-        
-        // 字体加粗与阴影
-        label.AddThemeFontSizeOverride("font_size", 16);
-        label.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 1));
-        label.AddThemeConstantOverride("shadow_offset_x", 1);
-        label.AddThemeConstantOverride("shadow_offset_y", 1);
-        
-        container.AddChild(label);
-        cardNode.AddChild(container);
-    }
-
-    private static void DrawDebugBox(NCard cardNode, string text)
-    {
-        if (cardNode.HasNode("CardStatsUI")) return;
-
-        var container = new Node2D();
-        container.Name = "CardStatsUI";
-        
-        float boxWidth = 190;
-        float boxHeight = 100;
-
-        container.Position = new Vector2(-boxWidth / 2, 160); 
-        container.ZIndex = 500;
-
-        var bg = new ColorRect();
-        bg.Color = new Color(0.2f, 0.2f, 0.2f, 0.95f);
-        bg.SetSize(new Vector2(boxWidth, boxHeight)); 
-        container.AddChild(bg);
-
-        int total = CardDatabase.Data.Count;
-        string sampleKeys = "";
-        int count = 0;
-        foreach (var k in CardDatabase.Data.Keys)
+        timer.Timeout += () => 
         {
-            sampleKeys += k + " ";
-            if (++count >= 2) break;
-        }
+            if (!GodotObject.IsInstanceValid(container) || !GodotObject.IsInstanceValid(cardNode)) return;
 
-        var label = new Label();
-        label.Text = $"缺失: {text}\n库总数: {total}\n样例: {sampleKeys}";
-        label.SetSize(new Vector2(boxWidth, boxHeight));
-        label.HorizontalAlignment = HorizontalAlignment.Center;
-        label.VerticalAlignment = VerticalAlignment.Center;
-        label.AddThemeFontSizeOverride("font_size", 12); 
-        
-        container.AddChild(label);
-        cardNode.AddChild(container);
+            // 如果卡牌不在屏幕树里，直接隐藏
+            if (!cardNode.IsInsideTree())
+            {
+                container.Visible = false;
+                return;
+            }
+
+            // 1. 判断位置：只要父节点有以下名字，说明在战斗中，立刻隐藏
+            bool isCombat = false;
+            Node current = cardNode.GetParent();
+            while (current != null)
+            {
+                string n = current.Name.ToString().ToLower();
+                if (n.Contains("hand") || n.Contains("battle") || n.Contains("combat") || 
+                    n.Contains("deck") || n.Contains("pile") || n.Contains("discard"))
+                {
+                    isCombat = true;
+                    break;
+                }
+                current = current.GetParent();
+            }
+
+            if (isCombat)
+            {
+                container.Visible = false;
+                return;
+            }
+
+            // 2. 动态读取数据（卡牌从对象池拿出来时，Model 会变）
+            var flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic;
+            var modelObj = cardNode.GetType().GetField("_model", flags)?.GetValue(cardNode)
+                        ?? cardNode.GetType().GetProperty("Model", flags)?.GetValue(cardNode);
+
+            if (modelObj == null)
+            {
+                container.Visible = false;
+                return;
+            }
+
+            string internalName = modelObj.GetType().Name;
+
+            if (internalName.StartsWith("Strike") || internalName.StartsWith("Defend"))
+            {
+                container.Visible = false;
+                return;
+            }
+
+            // 显示数据
+            container.Visible = true;
+            if (CardDatabase.Data.TryGetValue(internalName, out var stats))
+            {
+                label.Text = $"【{stats.Rank}】\n胜率: {stats.WinRate}%\n综合: {stats.Score:F1}";
+                label.Modulate = Color.FromHtml(stats.ColorHex);
+                border.Color = Color.FromHtml(stats.ColorHex);
+            }
+            else
+            {
+                label.Text = $"缺失:\n{internalName}";
+                label.Modulate = new Color(0.8f, 0.8f, 0.8f, 1);
+                border.Color = new Color(0.3f, 0.3f, 0.3f, 1);
+            }
+        };
     }
 }
