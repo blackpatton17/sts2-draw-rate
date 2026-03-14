@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>MyFirstSts2Mod</AssemblyName>
+    <AssemblyName>CardProbMod</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +17,10 @@
     </Reference>
     <Reference Include="0Harmony">
       <HintPath>lib\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="BaseLib">
+      <HintPath>BaseLib\BaseLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

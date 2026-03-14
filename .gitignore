@@ -1,19 +1,61 @@
-.venv/
+# ==========================================
+# C# / .NET (Slay the Spire 2 Mod)
+# ==========================================
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+
+# IDEs
+.vs/
+.vscode/
+.idea/
+*.RiderPreferences
+
+# ==========================================
+# Python & Scripts (Data Processing / Archive)
+# ==========================================
+# Environments
+.env
+.venv
+env/
 venv/
+ENV/
+env.bak/
+venv.bak/
 
-# OCR image inputs
-screenshots/
-
-# Python cache
+# Cache
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*$py.class
 .pytest_cache/
 .mypy_cache/
 .cache/
 
-# Local outputs / debug artifacts
+# Old OCR artifacts
+screenshots/
 debug_*.png
+dist/
+build/
+*.spec
 
-dist/StS2_Helper/_internal/
+# ==========================================
+# Temporary Data & Local Files
+# ==========================================
+# 游戏解包的原生大文件（不需要提交到git库中）
+cards.json
+
+# ==========================================
+# OS Generated
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

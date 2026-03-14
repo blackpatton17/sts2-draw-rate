@@ -1,0 +1,11 @@
+{
+  "id": "CardProbMod",
+  "name": "Card Recommendation Mod",
+  "author": "User",
+  "description": "Displays card win rates and ranks on the reward screen.",
+  "version": "1.0.0",
+  "has_pck": false,
+  "has_dll": true,
+  "dependencies": ["BaseLib"],
+  "affects_gameplay": false
+}
