@@ -26,7 +26,7 @@
 ### 前置需求
 《杀戮尖塔 2》目前处于抢先体验阶段，官方暂未原生开放创意工坊。为了让代码级模组（如本 Mod）能够被游戏加载，你**必须**先安装社区核心加载库：
 
-**BaseLib (模组基础库)**
+**[BaseLib](https://github.com/Alchyr/BaseLib-StS2/releases) (模组基础库)**
 *   **这是什么？**：BaseLib 是当前 STS2 模组社区使用的核心 Mod 加载器和工具库。本 Mod 依赖它来完成初始化和对游戏本体的底层代码注入（Harmony Patch）。
 *   **如何获取？**：你通常可以在 NexusMods、Discord 或官方 Mod 社区找到它。
 *   **如何安装 BaseLib？**：下载后，将 BaseLib 解压到游戏的 `mods` 文件夹中。安装好后，你的目录应该长这样：`Slay the Spire 2/mods/BaseLib/BaseLib.dll` (及相关配置和 .pck 文件)。
@@ -48,7 +48,8 @@
    └── mods/
        ├── BaseLib/                   # [必须存在] 核心前置库
        │   ├── BaseLib.dll
-       │   └── ...
+       │   └── BaseLib.json
+       │   └── BaseLib.pck
        └── CardProbMod/               # [本模组]
            ├── CardProbMod.dll        # 核心逻辑文件
            ├── CardProbMod.json       # Mod 配置文件
