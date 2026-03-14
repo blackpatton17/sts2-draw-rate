@@ -12,7 +12,7 @@
 
 ### 前置需求
 为了使 Mod 正常工作，你需要确保游戏支持加载第三方 Mod：
-1. **BaseLib** (或游戏官方支持的 Mod 加载器)
+1. **[BaseLib](https://github.com/Alchyr/BaseLib-StS2)** (或游戏官方支持的 Mod 加载器)
 2. 确保你的游戏版本支持 `.dll` 模组注入。
 
 ### 安装步骤
